@@ -3,11 +3,21 @@ services:
     name: canfezz-chat
     env: node
     buildCommand: |
-      cd backend && npm install
-      cd ../frontend && npm install && npm run build
-    startCommand: cd backend && node server.js
+      # Install backend
+      npm install --prefix backend
+      
+      # Install frontend with fixes
+      npm install --prefix frontend --legacy-peer-deps
+      
+      # Build frontend
+      CI=false npm run build --prefix frontend
+      
+      # Copy build
+      mkdir -p backend/public
+      cp -r frontend/build/* backend/public/
+    startCommand: node backend/server.js
     envVars:
-      - key: NODE_ENV
-        value: production
       - key: PORT
         value: 10000
+      - key: NODE_ENV
+        value: production
